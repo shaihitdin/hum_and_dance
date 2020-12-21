@@ -57,14 +57,14 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         #########
         processes = []
         for i in range(2, 8):
-            processes.append(subprocess.Popen('conda activate hum2query_nomkl; python hum2query_' + str(i) + '.py ' + self.fn, shell=True, stdout=subprocess.PIPE))
-        processes.append(subprocess.Popen('conda activate hum2query_nomkl; python hum2query.py' + self.fn, shell=True, stdout=subprocess.PIPE))
+            processes.append(subprocess.Popen('source ~/.bashrc; conda activate hum2query_nomkl; python hum2query_' + str(i) + '.py ' + self.fn, shell=True, stdout=subprocess.PIPE))
+        processes.append(subprocess.Popen('source ~/.bashrc; conda activate hum2query_nomkl; python hum2query.py ' + self.fn, shell=True, stdout=subprocess.PIPE))
 
 
         ans = (1000000000, 'None')
         for process_ in processes:
             output = process_.communicate()[0]
-            res = output.split(' ')
+            res = output.split(b' ')
             if int(res[0]) < ans[0]:
                 ans = (int(res[0]), res[1])
 

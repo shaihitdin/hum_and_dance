@@ -333,7 +333,7 @@ for music_folder in music_path:
     options.append((res, res_path.split('/')[1]))
 
 if len(sys.argv) > 1:
-    ch_string = findFeatures(sys.argv[1]) 
+    ch_string = swipe(sys.argv[1]) 
     ans_cnt = 1000000000
     ans_name = ""
     for new_option in options:
