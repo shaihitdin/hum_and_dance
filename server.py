@@ -122,7 +122,8 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         else:
             fn = fn + str(int(random.random() * 10000))
         
-        self.fn = 'queries/' + fn
+        fn = 'queries/' + fn
+        self.fn = fn
         ###
 
         
