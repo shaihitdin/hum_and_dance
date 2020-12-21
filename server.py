@@ -21,6 +21,7 @@ import shutil
 import mimetypes
 import re
 from io import BytesIO
+import random
 
 import subprocess
 
@@ -52,7 +53,7 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             f.close()
  
 
-    def run_processing():
+    def run_processing(self):
         #########
         processes = []
         for i in range(2, 8):
@@ -117,9 +118,9 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         fn = fn[0]
         formatted = fn.split('.')
         if len(formatted) > 1:
-            fn = formatted[0] + str(int(random() * 10000)) + '.' + '.'.join(formatted[1:])
+            fn = formatted[0] + str(int(random.random() * 10000)) + '.' + '.'.join(formatted[1:])
         else:
-            fn = fn + str(int(random() * 10000))
+            fn = fn + str(int(random.random() * 10000))
         
         self.fn = 'queries/' + fn
         ###
