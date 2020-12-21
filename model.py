@@ -6,12 +6,11 @@ device=torch.device('cuda:0')
 
 class EncoderRNN(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers, bidirectional):
+    def __init__(self, input_size, hidden_size, num_layers, bidirectional, batch_first = True):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, 
-                            dropout=0.2, bidirectional=bidirectional)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers=self.num_layers, batch_first=batch_first, bidirectional=bidirectional)
         self.relu = nn.ReLU()
 
         # initialize weights
@@ -27,18 +26,17 @@ class EncoderRNN(nn.Module):
 
         # forward propagate lstm
         out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
-
         return out[:, -1, :].unsqueeze(1)
 
 
 class DecoderRNN(nn.Module):
 
-    def __init__(self, hidden_size, output_size, num_layers, bidirectional):
+    def __init__(self, hidden_size, output_size, num_layers, bidirectional, batch_first = True):
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.num_layers = num_layers
-        self.lstm = nn.LSTM(hidden_size, output_size, num_layers, batch_first=True,
+        self.lstm = nn.LSTM(hidden_size, output_size, num_layers, batch_first=batch_first,
                             dropout=0.2, bidirectional=bidirectional)
 
         # initialize weights
@@ -59,14 +57,25 @@ class DecoderRNN(nn.Module):
 
 
 class AutoEncoderRNN(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, seq_len = 10, bidirectional=False):
+    def __init__(self, input_size, hidden_size, output_size, num_layers, seq_len = 10, bidirectional=False, batch_size = 20, batch_first = True):
         super(AutoEncoderRNN, self).__init__()
         self.sequence_length = seq_len
-        self.encoder = EncoderRNN(input_size, hidden_size, num_layers, bidirectional)
-        self.decoder = DecoderRNN(hidden_size, input_size, num_layers, bidirectional)
-
+        self.encoding = torch.zeros((batch_size, seq_len, hidden_size))
+        self.dense1 = nn.Linear(input_size, hidden_size*2) 
+        self.encoder = EncoderRNN(hidden_size*2, hidden_size, num_layers, bidirectional, batch_first = batch_first)
+        self.decoder = DecoderRNN(hidden_size, hidden_size*2, num_layers, bidirectional, batch_first = batch_first)
+        self.dense2 = nn.Linear(hidden_size*2, input_size)
+        
+        self.predictor = DecoderRNN(hidden_size, output_size, num_layers, bidirectional, batch_first = batch_first)
+        self.dense3 = nn.Linear(output_size, output_size)
+    
+        
     def forward(self, x):
+        x = self.dense1(x)
         encoded_x = self.encoder(x).expand(-1, self.sequence_length, -1)
+        self.encoding = encoded_x
         decoded_x = self.decoder(encoded_x)
-
-        return decoded_x
+        y = self.predictor(encoded_x)
+        predicted_y = self.dense3(y)
+        decoded_x = self.dense2(decoded_x)
+        return decoded_x, predicted_y

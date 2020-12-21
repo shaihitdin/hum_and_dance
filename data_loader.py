@@ -10,7 +10,7 @@ import pickle
 class TANG(Dataset):
     moves = []
     musics = []
-    configs = []
+    names = []
     series_uid = []
     uid = []
     def __init__(self, seq_len, dataset_location='', normalize = True, add_centers = True):
@@ -31,10 +31,14 @@ class TANG(Dataset):
                 #self.moves = data['moves']
                 
                 moves=data['moves']
+                musics = data['musics']
                 movesx = []
                 movesy = []
+                musicsx = []
+                musicsy = []
                 for idx, move in enumerate(moves):
                     skeletons = np.array(move['skeletons'])
+                    music = np.array(musics[idx])
                     if(add_centers):
                         centers = np.array(move['center'])
                         centers = np.expand_dims(centers,1)
@@ -42,10 +46,14 @@ class TANG(Dataset):
                     skeletons = skeletons.reshape(skeletons.shape[0], 69)
                     skeletons = np.transpose(skeletons, (1, 0))
                     skeletons = rolling_window(skeletons, self.seq_len)
+                    music = rolling_window(music, self.seq_len)
                     skeletons = np.transpose(skeletons, (1, 2, 0))
+                    music = np.transpose(music, (1,2,0))
                     for i in range(skeletons.shape[0]):
                         movesx.append(skeletons[i])
                         movesy.append(skeletons[i])
+                        musicsx.append(music[i])
+                        musicsy.append(music[i])
                         self.uid.append(i)
                         self.series_uid.append(idx)
                         
@@ -56,11 +64,11 @@ class TANG(Dataset):
                     self.moves = (movesx - self.mean) / self.std
                     
                 else:
+                    self.musics = torch.from_numpy(np.array(musicsy))
                     self.moves = torch.from_numpy(np.array(movesy))
                     self.mean = None
                     self.std = None
-                self.musics=data['musics']
-                self.configs=data['configs']
+                self.names=data['names']
         
     def __getitem__(self, index):
         '''
@@ -76,15 +84,12 @@ class TANG(Dataset):
         skeletons = self.moves[index]
         skeletons = skeletons.type(torch.FloatTensor)
         uid = self.uid[index]
-        series_uid = self.series_uid[index]
-        '''
-        music = self.musics[series_uid]
-        music = torch.from_numpy(music)
+        suid = self.series_uid[index]
+        music = self.musics[index]
         music = music.type(torch.FloatTensor)
-        '''
-        return skeletons, uid, series_uid
+        return skeletons, music, uid, suid
     
         # Override to give PyTorch size of dataset
     def __len__(self):
-        return len(self.series_uid)
+        return len(self.uid)
             
