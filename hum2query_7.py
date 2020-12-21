@@ -309,7 +309,7 @@ music_path = []
 # music_path = music_path + ['audios/DANCE_W_' + str(i)  for i in range(25, 30)]
 
 
-# music_path = music_path + ['audios/DANCE_W_' + str(i)  for i in range(30, 35)]
+music_path = music_path + ['audios/DANCE_W_' + str(i)  for i in range(30, 35)]
 
 
 options = []

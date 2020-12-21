@@ -290,8 +290,8 @@ music_path = []
 # music_path = music_path + ['audios/DANCE_C_' + str(i)  for i in range(6, 10)]
 
 
-# music_path = music_path + ['audios/DANCE_R_' + str(i)  for i in range(1, 5)]
-# music_path = music_path + ['audios/DANCE_R_' + str(i)  for i in range(5, 11)]
+music_path = music_path + ['audios/DANCE_R_' + str(i)  for i in range(1, 5)]
+music_path = music_path + ['audios/DANCE_R_' + str(i)  for i in range(5, 11)]
 
 
 # music_path = music_path + ['audios/DANCE_T_' + str(i)  for i in range(1, 5)]
