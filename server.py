@@ -57,7 +57,7 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         #########
         processes = []
         for i in range(2, 8):
-            processes.append(subprocess.Popen('conda activate hum2query_nomkl; python hum2query_' + str(i) + '.py ' + self.fn, shell=True, stdout=PIPE))
+            processes.append(subprocess.Popen('conda activate hum2query_nomkl; python hum2query_' + str(i) + '.py ' + self.fn, shell=True, stdout=subprocess.PIPE))
         processes.append(subprocess.Popen('conda activate hum2query_nomkl; python hum2query.py' + self.fn, shell=True, stdout=subprocess.PIPE))
 
 
